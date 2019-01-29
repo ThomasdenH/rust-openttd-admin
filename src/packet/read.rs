@@ -4,6 +4,7 @@ use num_traits::{FromPrimitive};
 use crate::consts::PacketAdminServerType;
 use std::io::{BufReader, BufRead};
 use crate::packet::server_packets;
+use chrono::naive::NaiveDate;
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum AdminServerPacket {
@@ -11,7 +12,8 @@ pub enum AdminServerPacket {
     ServerBanned,
     CompanyInfo(server_packets::CompanyInfo),
     ServerError(server_packets::ServerError),
-    ServerProtocol(server_packets::ServerProtocol)
+    ServerProtocol(server_packets::ServerProtocol),
+    Unimplemented{ packet_type: PacketAdminServerType, buffer: Vec<u8> }
 }
 
 #[derive(Debug, Fail)]
@@ -19,6 +21,10 @@ pub enum ReadAdminServerPacketError {
     #[fail(display = "unknown packet type: {}", packet_type)]
     UnknownPacket { packet_type: u8 },
 }
+
+
+const openttdOffset: i64 = -62167392000000;
+const openttdMultiplier: i64 = 24 * 60 * 60 * 1000;
 
 pub trait OpenTTDRead: std::io::Read {
     fn read_bool(&mut self) -> std::io::Result<bool> {
@@ -32,6 +38,10 @@ pub trait OpenTTDRead: std::io::Read {
         let mut buffer = Vec::new();
         f.read_until(0, &mut buffer)?;
         Ok(String::from_utf8(buffer)?)
+    }
+
+    fn read_date(&mut self) -> Result<String, Error> {
+
     }
 }
 
@@ -51,6 +61,7 @@ pub trait ReadAdminServerPacket: std::io::Read {
                 PacketAdminServerType::ServerCompanyInfo => AdminServerPacket::CompanyInfo(server_packets::CompanyInfo::from_buffer(&mut buffer)?),
                 PacketAdminServerType::ServerError => AdminServerPacket::ServerError(server_packets::ServerError::from_buffer(&mut buffer)?),
                 PacketAdminServerType::ServerProtocol => AdminServerPacket::ServerProtocol(server_packets::ServerProtocol::from_buffer(&mut buffer)?),
+                _ => AdminServerPacket::Unimplemented{ packet_type, buffer },
             })
         } else {
             Err(ReadAdminServerPacketError::UnknownPacket { packet_type }.into())

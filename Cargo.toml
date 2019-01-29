@@ -9,3 +9,4 @@ byteorder = "1"
 failure = "0.1.5"
 enum-primitive-derive = "^0.1"
 num-traits = "^0.1"
+chrono = "0.4.6

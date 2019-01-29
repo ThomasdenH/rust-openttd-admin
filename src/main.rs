@@ -1,5 +1,6 @@
 pub mod packet;
 pub mod consts;
+pub mod date;
 
 use std::net::TcpStream;
 use std::io::Write;
@@ -15,7 +16,8 @@ fn main() -> Result<(), Box<std::error::Error>> {
         "1.8.0".to_string()
     );
     stream.write(&Vec::<u8>::from(join))?;
-    let packet = stream.read_packet()?;
-    println!("{:?}", packet);
-    Ok(())
+    loop {
+        let packet = stream.read_packet()?;
+        println!("{:?}", packet);
+    }
 }

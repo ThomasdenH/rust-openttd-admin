@@ -1,19 +1,25 @@
 use serde::ser::{self, Serialize, Impossible};
 use super::error::{Error, Result};
-use byteorder::{LittleEndian, WriteBytesExt};
+use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
 use std::io::Write;
 
 pub struct Serializer {
     output: Vec<u8>
 }
 
-pub fn to_bytes<T>(packet_type: u8, value: &T) -> Result<Vec<u8>>
-where
-    T: Serialize,
-{
-    let mut serializer = Serializer { output: Vec::new() };
-    value.serialize(&mut serializer)?;
-    Ok(serializer.output)
+/// A trait that makes the implementing type serializable to a packet.
+pub trait BuildablePacket: Serialize {
+    const PACKET_TYPE: u8;
+    fn build_packet(&self) -> Result<Vec<u8>> {
+        let mut serializer = Serializer { output: vec![0, 0, Self::PACKET_TYPE] };
+        self.serialize(&mut serializer)?;
+        let length = serializer.output.len() as u16;
+
+        let buffer = &mut serializer.output[0..2];
+        LittleEndian::write_u16(buffer, length);
+
+        Ok(serializer.output)
+    }
 }
 
 impl<'a> ser::Serializer for &'a mut Serializer {
@@ -83,7 +89,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         Ok(())
     }
 
-    fn serialize_char(self, v: char) -> Result<()> {
+    fn serialize_char(self, _v: char) -> Result<()> {
         Err(Error::NotSupported)
     }
 
@@ -93,7 +99,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         Ok(())
     }
 
-    fn serialize_bytes(self, b: &[u8]) -> Result<()> {
+    fn serialize_bytes(self, _b: &[u8]) -> Result<()> {
         Err(Error::NotSupported)
     }
 
@@ -119,7 +125,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         self,
         _name: &'static str,
         _variant_index: u32,
-        variant: &'static str,
+        _variant: &'static str,
     ) -> Result<()> {
         Err(Error::NotSupported)
     }
@@ -127,7 +133,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     fn serialize_newtype_struct<T>(
         self,
         _name: &'static str,
-        value: &T,
+        _value: &T,
     ) -> Result<()>
     where
         T: ?Sized + Serialize,
@@ -139,8 +145,8 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         self,
         _name: &'static str,
         _variant_index: u32,
-        variant: &'static str,
-        value: &T,
+        _variant: &'static str,
+        _value: &T,
     ) -> Result<()>
     where
         T: ?Sized + Serialize,
@@ -148,11 +154,11 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         Err(Error::NotSupported)
     }
 
-    fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq> {
+    fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
         Err(Error::NotSupported)
     }
 
-    fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple> {
+    fn serialize_tuple(self, _len: usize) -> Result<Self::SerializeTuple> {
         Err(Error::NotSupported)
     }
 
@@ -163,7 +169,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     fn serialize_struct(
         self,
         _name: &'static str,
-        len: usize,
+        _len: usize,
     ) -> Result<Self::SerializeStruct> {
         Err(Error::NotSupported)
     }
@@ -172,7 +178,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         self,
         _name: &'static str,
         _variant_index: u32,
-        variant: &'static str,
+        _variant: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeStructVariant> {
         Err(Error::NotSupported)
@@ -181,7 +187,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     fn serialize_tuple_struct(
         self,
         _name: &'static str,
-        len: usize,
+        _len: usize,
     ) -> Result<Self::SerializeTupleStruct> {
         Err(Error::NotSupported)
     }
@@ -190,7 +196,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         self,
         _name: &'static str,
         _variant_index: u32,
-        variant: &'static str,
+        _variant: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeTupleVariant> {
         Err(Error::NotSupported)

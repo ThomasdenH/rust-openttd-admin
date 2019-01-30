@@ -1,7 +1,8 @@
-use enum_primitive_derive::Primitive;
+use crate::packet::serde::BuildablePacket;
+use serde_derive::{Serialize, Deserialize};
 
 /// Admin packets sent by the client to the admin server.
-#[derive(Primitive, Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum PacketAdminClientType {
     /// The admin announces and authenticates itself to the server.
 	AdminJoin = 0,
@@ -19,4 +20,10 @@ pub enum PacketAdminClientType {
 	AdminGamescript = 6,       
     /// The admin sends a ping to the server, expecting a ping-reply (PONG) packet.
 	AdminPing = 7,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[buildable_packet(0)]
+pub struct AdminJoin {
+
 }

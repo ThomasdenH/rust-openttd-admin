@@ -1,13 +1,7 @@
 pub mod packet;
-pub mod consts;
-pub mod date;
-
-use std::net::TcpStream;
-use std::io::Write;
-use crate::packet::admin_packets::AdminJoin;
-use crate::packet::read::ReadAdminServerPacket;
 
 fn main() -> Result<(), Box<std::error::Error>> {
+    /*
     let mut stream = TcpStream::connect("localhost:3977")?;
 
     let join = AdminJoin::new(
@@ -19,5 +13,6 @@ fn main() -> Result<(), Box<std::error::Error>> {
     loop {
         let packet = stream.read_packet()?;
         println!("{:?}", packet);
-    }
+    }*/
+    Ok(())
 }

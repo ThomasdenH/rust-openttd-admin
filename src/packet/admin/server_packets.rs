@@ -324,7 +324,7 @@ pub struct Pong {
 }
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
-pub enum AdminServerPacket {
+pub enum Packet {
     /// The server is full (connection gets closed).
     Full,
     /// The source IP address is banned (connection gets closed).

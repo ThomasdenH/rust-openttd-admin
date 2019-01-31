@@ -1,19 +1,25 @@
 use serde::ser::{self, Serialize, Impossible};
 use super::error::{Error, Result};
-use byteorder::{LittleEndian, WriteBytesExt};
+use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
 use std::io::Write;
 
 pub struct Serializer {
     output: Vec<u8>
 }
 
-pub fn to_bytes<T>(packet_type: u8, value: &T) -> Result<Vec<u8>>
-where
-    T: Serialize,
-{
-    let mut serializer = Serializer { output: Vec::new() };
-    value.serialize(&mut serializer)?;
-    Ok(serializer.output)
+pub trait WritablePacket: Serialize {
+    const PACKET_TYPE: u8;
+}
+
+pub trait PacketWrite<T: WritablePacket>: std::io::Write {
+    fn write_packet(&mut self, value: &T) -> Result<()> {
+        let mut serializer = Serializer { output: vec![0, 0, T::PACKET_TYPE] };
+        value.serialize(&mut serializer)?;
+        let length = serializer.output.len() as u16;
+        LittleEndian::write_u16(&mut serializer.output[0..2], length);
+        self.write_all(&serializer.output)?;
+        Ok(())
+    }
 }
 
 impl<'a> ser::Serializer for &'a mut Serializer {

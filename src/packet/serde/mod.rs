@@ -5,5 +5,5 @@ mod error;
 mod ser;
 
 pub use error::{Error, Result};
-pub use ser::{to_bytes, Serializer};
-pub use de::{from_bytes, Deserializer};
+pub use ser::{PacketWrite, WritablePacket};
+pub use de::{PacketRead, from_bytes};

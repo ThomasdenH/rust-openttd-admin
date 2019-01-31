@@ -1,18 +1,19 @@
 pub mod packet;
 
-fn main() -> Result<(), Box<std::error::Error>> {
-    /*
+use std::net::TcpStream;
+use crate::packet::admin::*;
+
+fn main() -> Result<()> {
     let mut stream = TcpStream::connect("localhost:3977")?;
 
-    let join = AdminJoin::new(
-        "password".to_string(),
-        "rust-openttd-admin".to_string(),
-        "1.8.0".to_string()
-    );
-    stream.write(&Vec::<u8>::from(join))?;
+    let join = client_packets::Join {
+        password: "password".to_string(),
+        name: "rust-openttd-admin".to_string(),
+        version: "1.8.0".to_string()
+    };
+    stream.write_packet(&join)?;
     loop {
         let packet = stream.read_packet()?;
         println!("{:?}", packet);
-    }*/
-    Ok(())
+    }
 }

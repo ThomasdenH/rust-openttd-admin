@@ -1,2 +1,2 @@
-pub mod serde;
 pub mod admin;
+pub mod serde;

@@ -1,14 +1,34 @@
-use serde::de::{self, Deserialize, Visitor};
 use super::error::{Error, Result};
 use byteorder::{LittleEndian, ReadBytesExt};
+use serde::de::{self, Deserialize, DeserializeSeed, SeqAccess, Visitor};
 
 struct Deserializer<'de> {
     input: &'de [u8],
 }
 
 impl<'de> Deserializer<'de> {
-    pub fn from_bytes(input: &'de [u8]) -> Self {
+    fn from_bytes(input: &'de [u8]) -> Self {
         Deserializer { input }
+    }
+
+    fn parse_string(&mut self) -> Result<&'de str> {
+        if let Some(end) = self.input.iter().position(|&b| b == 0) {
+            let string = &self.input[0..end];
+            self.input = &self.input[end + 1..];
+            let string = &std::str::from_utf8(&string)?;
+            Ok(string)
+        } else {
+            Err(Error::EndlessString)
+        }
+    }
+
+    fn parse_bool(&mut self) -> Result<bool> {
+        let b = self.input.read_u8()?;
+        match b {
+            1 => Ok(true),
+            0 => Ok(false),
+            _ => Err(Error::InvalidBool),
+        }
     }
 }
 
@@ -51,10 +71,11 @@ pub trait PacketRead<'a>: std::io::Read {
 impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     type Error = Error;
 
-    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
+    fn deserialize_any<V>(self, _visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
+        // We really have no idea what the data means.
         Err(Error::NotSupported)
     }
 
@@ -62,19 +83,19 @@ impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        let string = self.parse_string()?;
+        if string.chars().count() != 1 {
+            Err(Error::InvalidChar)
+        } else {
+            visitor.visit_char(string.chars().next().unwrap())
+        }
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        let b = self.input.read_u8()?;
-        match b {
-            1 => visitor.visit_bool(true),
-            0 => visitor.visit_bool(false),
-            _ => Err(Error::InvalidBool)
-        }
+        visitor.visit_bool(self.parse_bool()?)
     }
 
     fn deserialize_i8<V>(self, visitor: V) -> Result<V::Value>
@@ -146,146 +167,179 @@ impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     {
         visitor.visit_f64(self.input.read_f64::<LittleEndian>()?)
     }
-    
+
     fn deserialize_str<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        for i in 0..self.input.len() {
-            if self.input[i] == 0 {
-                let string = &self.input[0..i];
-                self.input = &self.input[i + 1..];
-                return visitor.visit_borrowed_str(&std::str::from_utf8(&string)?);
-            }
-        }
-        Err(Error::EndlessString)
+        let string = self.parse_string()?;
+        visitor.visit_borrowed_str(string)
     }
 
     fn deserialize_string<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        self.deserialize_str(visitor)
+        let string = self.parse_string()?;
+        visitor.visit_borrowed_str(string)
     }
 
-    fn deserialize_bytes<V>(self, _visitor: V) -> Result<V::Value>
+    fn deserialize_bytes<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_seq(self)
     }
 
-    fn deserialize_byte_buf<V>(self, _visitor: V) -> Result<V::Value>
+    fn deserialize_byte_buf<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_seq(self)
     }
 
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        if self.input.is_empty() {
+            visitor.visit_none()
+        } else {
+            visitor.visit_some(self)
+        }
     }
 
     fn deserialize_unit<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_unit()
     }
 
-    fn deserialize_unit_struct<V>(
-        self,
-        _name: &'static str,
-        visitor: V,
-    ) -> Result<V::Value>
+    fn deserialize_unit_struct<V>(self, _name: &'static str, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_unit()
     }
 
-    fn deserialize_newtype_struct<V>(
-        self,
-        _name: &'static str,
-        visitor: V,
-    ) -> Result<V::Value>
+    fn deserialize_newtype_struct<V>(self, _name: &'static str, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_newtype_struct(self)
     }
 
     fn deserialize_seq<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_seq(self)
     }
 
     fn deserialize_tuple<V>(self, len: usize, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_seq(FixedSizeSeqAccess { de: self, len })
     }
 
     fn deserialize_tuple_struct<V>(
         self,
         _name: &'static str,
-        _len: usize,
+        len: usize,
         visitor: V,
     ) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_seq(FixedSizeSeqAccess { de: self, len })
     }
 
-    fn deserialize_map<V>(self, visitor: V) -> Result<V::Value>
+    fn deserialize_map<V>(self, _visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
+        // Maps are not supported
         Err(Error::NotSupported)
     }
 
     fn deserialize_struct<V>(
         self,
         _name: &'static str,
-        _fields: &'static [&'static str],
+        fields: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        Err(Error::NotSupported)
+        visitor.visit_seq(FixedSizeSeqAccess {
+            de: self,
+            len: fields.len(),
+        })
     }
 
     fn deserialize_enum<V>(
         self,
         _name: &'static str,
         _variants: &'static [&'static str],
-        visitor: V,
+        _visitor: V,
     ) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
+        // Use custom implementation instead.
         Err(Error::NotSupported)
     }
 
-    fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value>
+    fn deserialize_identifier<V>(self, _visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
         Err(Error::NotSupported)
     }
 
-    fn deserialize_ignored_any<V>(self, visitor: V) -> Result<V::Value>
+    fn deserialize_ignored_any<V>(self, _visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
         Err(Error::NotSupported)
+    }
+}
+
+impl<'de> SeqAccess<'de> for Deserializer<'de> {
+    type Error = Error;
+    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
+    where
+        T: DeserializeSeed<'de>,
+    {
+        let expect_next = self.parse_bool()?;
+        if expect_next {
+            seed.deserialize(self).map(Some)
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+/// A SeqAccess of fixed size without delimiters.
+struct FixedSizeSeqAccess<'a, 'de: 'a> {
+    de: &'a mut Deserializer<'de>,
+    len: usize,
+}
+
+impl<'de, 'a> SeqAccess<'de> for FixedSizeSeqAccess<'a, 'de> {
+    type Error = Error;
+
+    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
+    where
+        T: DeserializeSeed<'de>,
+    {
+        if self.len == 0 {
+            Ok(None)
+        } else {
+            self.len -= 1;
+            seed.deserialize(&mut *self.de).map(Some)
+        }
     }
 }

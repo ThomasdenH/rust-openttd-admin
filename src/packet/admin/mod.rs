@@ -7,17 +7,17 @@
 pub mod client_packets;
 pub mod server_packets;
 
-pub use crate::packet::serde::{PacketWrite, PacketRead, Result};
+pub use crate::packet::serde::{PacketRead, PacketWrite, Result};
 
 /// Provides the function [`AdminRead::read_packet`] to a type implementing
 /// [`std::io::Read`].
-pub trait AdminRead: std::io::Read { }
-impl<T: std::io::Read> AdminRead for T { }
+pub trait AdminRead: std::io::Read {}
+impl<T: std::io::Read> AdminRead for T {}
 impl<'a, T: AdminRead> PacketRead<'a> for T {
     type PACKET_TYPE = server_packets::Packet;
     fn match_packet(packet_type: u8, buffer: Vec<u8>) -> Result<Self::PACKET_TYPE> {
-        use server_packets::Packet::*;
         use crate::packet::serde::from_bytes;
+        use server_packets::Packet::*;
         Ok(match packet_type {
             100 => Full,
             101 => Banned,
@@ -46,13 +46,16 @@ impl<'a, T: AdminRead> PacketRead<'a> for T {
             124 => Gamescript(from_bytes(&buffer)?),
             125 => RconEnd(from_bytes(&buffer)?),
             126 => Pong(from_bytes(&buffer)?),
-            _ => UnknownPacket { packet_type, buffer }
+            _ => UnknownPacket {
+                packet_type,
+                buffer,
+            },
         })
     }
 }
 
 /// Provides the function [`AdminWrite::write_packet`] to a type implementing
 /// [`std::io::Write`].
-pub trait AdminWrite: std::io::Write { }
-impl<T: std::io::Write> AdminWrite for T { }
-impl<T: client_packets::Packet, W: AdminWrite> PacketWrite<T> for W { }
+pub trait AdminWrite: std::io::Write {}
+impl<T: std::io::Write> AdminWrite for T {}
+impl<T: client_packets::Packet, W: AdminWrite> PacketWrite<T> for W {}

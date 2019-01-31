@@ -3,13 +3,13 @@
 //! enum [`AdminServerPacket`]. Packets that contain extra information also
 //! have their own struct.
 
-use serde_derive::{Serialize, Deserialize};
+use serde_derive::{Deserialize, Serialize};
 
 /// An error was caused by this admin connection (connection gets closed).
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone, Copy)]
 pub struct Error {
     /// The error caused.
-    pub error_code: u8
+    pub error_code: u8,
 }
 
 /// Describes an update packet.
@@ -18,7 +18,7 @@ pub struct UpdatePacketDescription {
     /// Update packet type.
     pub packet_type: u16,
     /// Frequencies allowed for this update packet (bitwise).
-    pub frequencies_allowed: u16
+    pub frequencies_allowed: u16,
 }
 
 /// Inform a just joined admin about the protocol specifics.
@@ -27,7 +27,7 @@ pub struct Protocol {
     /// Protocol version.
     pub version: u8,
     /// Different update packet descriptions.
-    pub update_packets: Vec<UpdatePacketDescription>
+    pub update_packets: Vec<UpdatePacketDescription>,
 }
 
 /// Welcome a connected admin to the game.
@@ -50,21 +50,21 @@ pub struct Welcome {
     /// Map width.
     pub map_width: u16,
     /// Map height.
-    pub map_height: u16
+    pub map_height: u16,
 }
 
 /// Send the current date of the game.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Date {
     /// Current game date.
-    pub date: u32
+    pub date: u32,
 }
 
 /// Notification of a new client.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct ClientJoin {
     /// ID of the new client.
-    pub id: u32
+    pub id: u32,
 }
 
 /// Client information of a specific client.
@@ -81,7 +81,7 @@ pub struct ClientInfo {
     /// Date the client joined the game.
     pub date_joined: u32,
     /// ID of the company the client is playing as (255 for spectators).
-    pub company_id: u8
+    pub company_id: u8,
 }
 
 /// Client update details on a specific client (e.g. after rename or move).
@@ -92,14 +92,14 @@ pub struct ClientUpdate {
     /// Name of the client.
     pub name: String,
     /// ID of the company the client is playing as (255 for spectators).
-    pub company_id: u8
+    pub company_id: u8,
 }
 
 /// Notification about a client leaving the game.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub struct ClientQuit {
     /// ID of the client that just left.
-    pub id: u32
+    pub id: u32,
 }
 
 /// Notification about a client error (and thus the clients disconnection).
@@ -108,14 +108,14 @@ pub struct ClientError {
     /// ID of the client that made the error.
     pub id: u32,
     /// Error the client made (see NetworkErrorCode).
-    pub error: u8
+    pub error: u8,
 }
 
 /// Notification of a new company.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub struct CompanyNew {
     /// ID of the new company.
-    pub id: u32
+    pub id: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
@@ -133,7 +133,7 @@ pub struct CompanyInfo {
     /// Year the company was inaugurated.
     pub inaugurated_year: u32,
     /// Company is an AI.
-    pub ai: bool
+    pub ai: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
@@ -166,7 +166,7 @@ pub struct CompanyRemove {
     /// ID of the company.
     id: u8,
     /// Reason for being removed (see #AdminCompanyRemoveReason).
-    reason: u8
+    reason: u8,
 }
 
 /// Economy update of a specific company.
@@ -193,7 +193,7 @@ pub struct CompanyEconomy {
     /// Performance (previous quarter).
     performance_previous: u16,
     /// Delivered cargo (previous quarter).
-    delivered_previous: u16
+    delivered_previous: u16,
 }
 
 /// Company statistics on stations and vehicles.
@@ -220,7 +220,7 @@ pub struct CompanyStats {
     /// Number of airports and heliports.
     airports_and_heliports: u16,
     /// Number of harbours.
-    harbours: u16
+    harbours: u16,
 }
 
 /// Send chat from the game into the admin network.
@@ -235,7 +235,7 @@ pub struct Chat {
     /// Message.
     message: String,
     /// Money (only when it is a 'give money' action).
-    money: Option<u64>
+    money: Option<u64>,
 }
 
 /// Result of an rcon command.
@@ -244,7 +244,7 @@ pub struct Rcon {
     /// Colour as it would be used on the server or a client.
     color: u16,
     /// Output of the executed command.
-    output: String
+    output: String,
 }
 
 /// Send what would be printed on the server's console also into the admin network.
@@ -253,7 +253,7 @@ pub struct Console {
     /// The origin of the text, e.g. "console" for console, or "net" for network related (debug) messages.
     origin: String,
     /// Text as found on the console of the server.
-    text: String
+    text: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
@@ -261,24 +261,24 @@ pub struct CmdName {
     /// ID of the DoCommand.
     id: u16,
     /// Name of DoCommand.
-    name: String
+    name: String,
 }
 
 /// Send DoCommand names to the bot upon request only. Multiple of these
 /// packets can follow each other in order to provide all known DoCommand names.
-/// 
+///
 /// NOTICE: Data provided with this packet is not stable and will not be
 /// treated as such. Do not rely on IDs or names to be constant across
 /// different versions / revisions of OpenTTD. Data provided in this packet is
 /// for logging purposes only.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CmdNames {
-    names: Vec<CmdName>
+    names: Vec<CmdName>,
 }
 
 /// Send incoming command packets to the admin network. This is for logging
 /// purposes only.
-/// 
+///
 /// NOTICE: Data provided with this packet is not stable and will not be
 /// across different versions / revisions of OpenTTD.
 /// Data provided in this packet is for logging purposes only.
@@ -299,28 +299,28 @@ pub struct CmdLogging {
     /// Text passed to the command.
     text: String,
     /// Frame of execution.
-    execution_frame: u32
+    execution_frame: u32,
 }
 
 /// Send a JSON string to the current active GameScript.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Gamescript {
     /// JSON string for the GameScript.
-    json: String
+    json: String,
 }
 
 /// Notify the admin connection that the rcon command has finished.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct RconEnd {
     /// The command as requested by the admin connection.
-    command: String
+    command: String,
 }
 
 /// Send a ping-reply (pong) to the admin that sent us the ping packet.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Pong {
     /// Should be the same as read from the admins ping packet.
-    id: u32
+    id: u32,
 }
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
@@ -369,12 +369,15 @@ pub enum Packet {
     Rcon(Rcon),
     /// Send what would be printed on the server's console also into the admin network.
     Console(Console),
-    CmdNames(CmdNames), 
+    CmdNames(CmdNames),
     CmdLogging(CmdLogging),
     Gamescript(Gamescript),
     /// Notify the admin connection that the rcon command has finished.
     RconEnd(RconEnd),
     /// Send a ping-reply (pong) to the admin that sent us the ping packet.
     Pong(Pong),
-    UnknownPacket { packet_type: u8, buffer: Vec<u8> }
+    UnknownPacket {
+        packet_type: u8,
+        buffer: Vec<u8>,
+    },
 }

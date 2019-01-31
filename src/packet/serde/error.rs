@@ -12,8 +12,12 @@ pub enum Error {
     NotSupported,
     EndlessString,
     InvalidBool,
+    /// An [`Option`] is only allowed as the last element of the input.
+    InvalidOption,
+    /// An invalid char was decoded.
+    InvalidChar,
     IoError(std::io::Error),
-    Utf8Error(std::str::Utf8Error)
+    Utf8Error(std::str::Utf8Error),
 }
 
 impl ser::Error for Error {
@@ -43,7 +47,9 @@ impl std::error::Error for Error {
             Error::Utf8Error(ref err) => err.description(),
             Error::NotSupported => "the data type is not supported",
             Error::EndlessString => "string doesn't end with \0",
-            Error::InvalidBool => "invalid bool"
+            Error::InvalidBool => "invalid bool",
+            Error::InvalidOption => "invalid option",
+            Error::InvalidChar => "invalid char",
         }
     }
 }

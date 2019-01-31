@@ -1,9 +1,8 @@
 //! This module contains the definitions for the admin packets that can be
 //! sent to the server.
 
-use enum_primitive_derive::Primitive;
 use crate::packet::serde::WritablePacket;
-use serde_derive::{Serialize, Deserialize};
+use serde_derive::{Deserialize, Serialize};
 
 /// Implemented by all admin client-sendable types.
 pub trait Packet: WritablePacket {
@@ -21,7 +20,7 @@ pub struct Join {
     /// Name of the application being used to connect.
     pub name: String,
     /// Version string of the application being used to connect.
-    pub version: String
+    pub version: String,
 }
 impl Packet for Join {
     const PACKET_TYPE: u8 = 0;
@@ -40,7 +39,7 @@ pub struct UpdateFrequency {
     /// Update type (see #AdminUpdateType).
     pub update_type: u16,
     /// Update frequency (see #AdminUpdateFrequency), setting #ADMIN_FREQUENCY_POLL is always ignored.
-    pub frequency: u16
+    pub frequency: u16,
 }
 impl Packet for UpdateFrequency {
     const PACKET_TYPE: u8 = 2;
@@ -52,9 +51,9 @@ pub struct AdminPoll {
     /// #AdminUpdateType the server should answer for, only if #AdminUpdateFrequency #ADMIN_FREQUENCY_POLL is advertised in the PROTOCOL packet.
     pub update_type: u8,
     /// ID relevant to the packet type, e.g.
-	/// - the client ID for #ADMIN_UPDATE_CLIENT_INFO. Use UINT32_MAX to show all clients.
-	/// - the company ID for #ADMIN_UPDATE_COMPANY_INFO. Use UINT32_MAX to show all companies.
-    pub id: u32
+    /// - the client ID for #ADMIN_UPDATE_CLIENT_INFO. Use UINT32_MAX to show all clients.
+    /// - the company ID for #ADMIN_UPDATE_COMPANY_INFO. Use UINT32_MAX to show all companies.
+    pub id: u32,
 }
 impl Packet for AdminPoll {
     const PACKET_TYPE: u8 = 3;
@@ -70,7 +69,7 @@ pub struct AdminChat {
     /// ID of the destination such as company or client id.
     pub destination_id: u32,
     /// Message.
-    pub message: String
+    pub message: String,
 }
 impl Packet for AdminChat {
     const PACKET_TYPE: u8 = 4;
@@ -80,7 +79,7 @@ impl Packet for AdminChat {
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct AdminRcon {
     /// Command to be executed.
-    pub command: String
+    pub command: String,
 }
 impl Packet for AdminRcon {
     const PACKET_TYPE: u8 = 5;
@@ -90,7 +89,7 @@ impl Packet for AdminRcon {
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct Gamescript {
     /// JSON string for the GameScript.
-    pub json: String
+    pub json: String,
 }
 impl Packet for Gamescript {
     const PACKET_TYPE: u8 = 6;
@@ -100,7 +99,7 @@ impl Packet for Gamescript {
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Ping {
     ///  Integer value to pass to the server, which is quoted in the reply.
-    pub id: u32
+    pub id: u32,
 }
 impl Packet for Ping {
     const PACKET_TYPE: u8 = 7;

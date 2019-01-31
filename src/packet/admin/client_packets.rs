@@ -14,15 +14,15 @@ impl<T: Packet> WritablePacket for T {
 
 /// The admin announces and authenticates itself to the server.
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
-pub struct Join {
+pub struct Join<'a> {
     /// Password the server is expecting for this network.
-    pub password: String,
+    pub password: &'a str,
     /// Name of the application being used to connect.
-    pub name: String,
+    pub name: &'a str,
     /// Version string of the application being used to connect.
-    pub version: String,
+    pub version: &'a str,
 }
-impl Packet for Join {
+impl<'a> Packet for Join<'a> {
     const PACKET_TYPE: u8 = 0;
 }
 
@@ -61,7 +61,7 @@ impl Packet for AdminPoll {
 
 /// Send chat as the server.
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
-pub struct AdminChat {
+pub struct AdminChat<'a> {
     /// Action such as NETWORK_ACTION_CHAT_CLIENT (see #NetworkAction).
     pub action: u8,
     /// Destination type such as DESTTYPE_BROADCAST (see #DestType).
@@ -69,29 +69,29 @@ pub struct AdminChat {
     /// ID of the destination such as company or client id.
     pub destination_id: u32,
     /// Message.
-    pub message: String,
+    pub message: &'a str,
 }
-impl Packet for AdminChat {
+impl Packet for AdminChat<'_> {
     const PACKET_TYPE: u8 = 4;
 }
 
 /// Execute a command on the servers console.
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
-pub struct AdminRcon {
+pub struct AdminRcon<'a> {
     /// Command to be executed.
-    pub command: String,
+    pub command: &'a str,
 }
-impl Packet for AdminRcon {
+impl Packet for AdminRcon<'_> {
     const PACKET_TYPE: u8 = 5;
 }
 
 /// Send a JSON string to the current active GameScript.
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
-pub struct Gamescript {
+pub struct Gamescript<'a> {
     /// JSON string for the GameScript.
-    pub json: String,
+    pub json: &'a str,
 }
-impl Packet for Gamescript {
+impl Packet for Gamescript<'_> {
     const PACKET_TYPE: u8 = 6;
 }
 

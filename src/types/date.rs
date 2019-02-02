@@ -430,9 +430,6 @@ fn accumulated_days_for_month(month: u32) -> Result<u32, DateError> {
     }
 }
 
-/// The minimum day, 1 Jan 0.
-const MIN_DAY: u32 = 0;
-
 /// The number of days till the last day.
 lazy_static! {
     static ref MAX_DAY: u32 = (days_till!(MAX_YEAR + 1) - 1);
@@ -466,13 +463,13 @@ pub enum DateError {
 
 impl Date {
     /// Returns the OpenTTD value this date represents.
-    pub fn to_openttd_date(&self) -> u32 {
+    pub fn to_openttd_date(self) -> u32 {
         self.0
     }
 
     /// Returns the date this OpenTTD value represents.
     pub fn from_openttd_date(date: u32) -> Result<Date, DateError> {
-        if date < MIN_DAY || date > *MAX_DAY {
+        if date > *MAX_DAY {
             Err(DateError::DateOutOfRange { date })
         } else {
             Ok(Date(date))
@@ -481,7 +478,7 @@ impl Date {
 
     /// Convert a date to a year, month and day. The year will range from 0 to
     /// 5.000.000, the month from 0 to 11 and the day from 0 to 31.
-    pub fn to_ymd(&self) -> (u32, u32, u32) {
+    pub fn to_ymd(self) -> (u32, u32, u32) {
         let days = self.to_openttd_date();
 
         /* Year determination in multiple steps to account for leap
@@ -500,7 +497,7 @@ impl Date {
 
             /* There are 24 leap years in the next couple of 100 years */
             yr += 100 * (rem / (DAYS_IN_YEAR * 100 + 24));
-            rem = rem % (DAYS_IN_YEAR * 100 + 24);
+            rem %= DAYS_IN_YEAR * 100 + 24;
         }
 
         if !Date::is_leap_year(yr) && rem >= DAYS_IN_YEAR * 4 {
@@ -511,7 +508,7 @@ impl Date {
 
         /* There is 1 leap year every 4 years */
         yr += 4 * (rem / (DAYS_IN_YEAR * 4 + 1));
-        rem = rem % (DAYS_IN_YEAR * 4 + 1);
+        rem %= DAYS_IN_YEAR * 4 + 1;
 
         /* The last (max 3) years to account for; the first one
          * can be, but is not necessarily a leap year */
@@ -632,7 +629,7 @@ mod test {
         /// The inner representation should not be tested, just that it converts
         /// losslessly.
         #[test]
-        fn openttd_conversion(openttd_date in MIN_DAY..(days_till!(MAX_YEAR + 1) - 1)) {
+        fn openttd_conversion(openttd_date in 0..(days_till!(MAX_YEAR + 1) - 1)) {
             assert_eq!(
                 Date::from_openttd_date(openttd_date)
                     .unwrap()
@@ -645,7 +642,7 @@ mod test {
     proptest! {
         /// Test whether ymd conversion is lossless
         #[test]
-        fn ymd_conversion(openttd_date in MIN_DAY..(days_till!(MAX_YEAR + 1) - 1)) {
+        fn ymd_conversion(openttd_date in 0..(days_till!(MAX_YEAR + 1) - 1)) {
             let date = Date::from_openttd_date(openttd_date).unwrap();
             let (y, m, d) = date.to_ymd();
             let new_date = Date::from_ymd(y, m, d).unwrap();

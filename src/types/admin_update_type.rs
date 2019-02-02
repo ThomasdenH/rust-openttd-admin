@@ -28,7 +28,7 @@ pub enum AdminUpdateType {
     Gamescript,
 }
 
-const ADMIN_UPDATE_TYPE_SERIALIZE_ERROR: &'static str = "could not serialze AdminUpdateType";
+const ADMIN_UPDATE_TYPE_SERIALIZE_ERROR: &str = "could not serialze AdminUpdateType";
 
 impl Serialize for AdminUpdateType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

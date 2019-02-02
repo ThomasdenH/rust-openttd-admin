@@ -48,7 +48,7 @@ where
     }
 }
 
-/// A trait that provides the [`read_packet`] function to a type implementing
+/// A trait that provides the [`read_packet`](PacketRead#read_packet) function to a type implementing
 /// [`std::io::Read`].
 pub trait PacketRead<'a>: std::io::Read {
     /// The type of the decoded packet.

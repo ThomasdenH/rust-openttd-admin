@@ -2,6 +2,7 @@
 //! sent to the server.
 
 use crate::packet::serde::WritablePacket;
+use crate::types::AdminUpdateType;
 use serde_derive::{Deserialize, Serialize};
 
 /// Implemented by all admin client-sendable types.
@@ -13,7 +14,7 @@ impl<T: Packet> WritablePacket for T {
 }
 
 /// The admin announces and authenticates itself to the server.
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Join<'a> {
     /// Password the server is expecting for this network.
     pub password: &'a str,
@@ -34,10 +35,10 @@ impl Packet for Quit {
 }
 
 /// Register updates to be sent at certain frequencies (as announced in the PROTOCOL packet).
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct UpdateFrequency {
-    /// Update type (see #AdminUpdateType).
-    pub update_type: u16,
+    /// Update type (see [`AdminUpdateType`]).
+    pub update_type: AdminUpdateType,
     /// Update frequency (see #AdminUpdateFrequency), setting #ADMIN_FREQUENCY_POLL is always ignored.
     pub frequency: u16,
 }
@@ -48,8 +49,8 @@ impl Packet for UpdateFrequency {
 /// Poll the server for certain updates, an invalid poll (e.g. not existent id) gets silently dropped.
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct AdminPoll {
-    /// #AdminUpdateType the server should answer for, only if #AdminUpdateFrequency #ADMIN_FREQUENCY_POLL is advertised in the PROTOCOL packet.
-    pub update_type: u8,
+    /// [`AdminUpdateType`] the server should answer for, only if #AdminUpdateFrequency #ADMIN_FREQUENCY_POLL is advertised in the PROTOCOL packet.
+    pub update_type: AdminUpdateType,
     /// ID relevant to the packet type, e.g.
     /// - the client ID for #ADMIN_UPDATE_CLIENT_INFO. Use UINT32_MAX to show all clients.
     /// - the company ID for #ADMIN_UPDATE_COMPANY_INFO. Use UINT32_MAX to show all companies.
@@ -60,7 +61,7 @@ impl Packet for AdminPoll {
 }
 
 /// Send chat as the server.
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct AdminChat<'a> {
     /// Action such as NETWORK_ACTION_CHAT_CLIENT (see #NetworkAction).
     pub action: u8,
@@ -76,7 +77,7 @@ impl Packet for AdminChat<'_> {
 }
 
 /// Execute a command on the servers console.
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct AdminRcon<'a> {
     /// Command to be executed.
     pub command: &'a str,
@@ -86,7 +87,7 @@ impl Packet for AdminRcon<'_> {
 }
 
 /// Send a JSON string to the current active GameScript.
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Gamescript<'a> {
     /// JSON string for the GameScript.
     pub json: &'a str,

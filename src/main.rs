@@ -1,10 +1,8 @@
+pub mod types;
 pub mod packet;
-pub mod network;
 
-use network::{Configuration, Socket};
+use packet::serde::Result;
 
 fn main() -> Result<()> {
-    let socket = Socket::new();
-
     Ok(())
 }

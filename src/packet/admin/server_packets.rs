@@ -1,9 +1,10 @@
 //! This module contains the definitions for the admin packets that can be
 //! sent by the server. All different types of packets are contained in the
-//! enum [`AdminServerPacket`]. Packets that contain extra information also
+//! enum [`Packet`](crate::packet::admin::server_packets::Packet). Packets that contain extra information also
 //! have their own struct.
 
 use serde_derive::{Deserialize, Serialize};
+use crate::types;
 
 /// An error was caused by this admin connection (connection gets closed).
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone, Copy)]
@@ -46,7 +47,7 @@ pub struct Welcome {
     /// Landscape of the Map.
     pub map_landscape: u8,
     /// Start date of the Map.
-    pub map_start_date: u32,
+    pub map_start_date: types::Date,
     /// Map width.
     pub map_width: u16,
     /// Map height.
@@ -57,7 +58,7 @@ pub struct Welcome {
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Date {
     /// Current game date.
-    pub date: u32,
+    pub date: types::Date,
 }
 
 /// Notification of a new client.
@@ -79,7 +80,7 @@ pub struct ClientInfo {
     /// Language of the client.
     pub language: u8,
     /// Date the client joined the game.
-    pub date_joined: u32,
+    pub date_joined: types::Date,
     /// ID of the company the client is playing as (255 for spectators).
     pub company_id: u8,
 }

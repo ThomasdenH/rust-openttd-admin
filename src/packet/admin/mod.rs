@@ -1,8 +1,8 @@
 //! Provides API for communicating with the OpenTTD admin interface. To read
-//! packets, import [`AdminRead`], which provides [`AdminRead::read_packet`].
-//! To write packets, import [`AdminWrite`], which provides [`AdminWrite::write_packet`].
-//! The packets themselves are defined in the submodules [`client_packets`] and
-//! [`server_packets`].
+//! packets, import [`AdminRead`](crate::packet::admin::AdminRead), which provides [`read_packet`](crate::packet::admin::AdminRead#read_packet).
+//! To write packets, import [`AdminWrite`](crate::packet::admin::AdminWrite), which provides [`write_packet`](crate::packet::admin::AdminRead#write_packet).
+//! The packets themselves are defined in the submodules [`client_packets`](crate::packet::admin::client_packets) and
+//! [`server_packets`](crate::packet::admin::server_packets).
 
 pub mod client_packets;
 pub mod server_packets;

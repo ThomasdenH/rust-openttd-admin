@@ -604,9 +604,8 @@ impl<'de> Deserialize<'de> for Date {
     where
         D: Deserializer<'de>,
     {
-        u32::deserialize(deserializer).and_then(|num| {
-            Date::from_openttd_date(num).map_err(serde::de::Error::custom)
-        })
+        u32::deserialize(deserializer)
+            .and_then(|num| Date::from_openttd_date(num).map_err(serde::de::Error::custom))
     }
 }
 

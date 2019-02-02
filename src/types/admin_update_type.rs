@@ -1,31 +1,31 @@
 use num_derive::{FromPrimitive, ToPrimitive};
-use serde::{Serialize, Serializer, Deserializer, de, ser};
+use num_traits::{FromPrimitive, ToPrimitive};
 use serde::de::{Deserialize, Unexpected};
-use num_traits::{ToPrimitive, FromPrimitive};
+use serde::{de, ser, Deserializer, Serialize, Serializer};
 
 /// Update types an admin can register a frequency for
 #[derive(FromPrimitive, ToPrimitive, Copy, Clone, Eq, PartialEq, Debug)]
 pub enum AdminUpdateType {
     /// Updates about the date of the game.
-    Date,        
+    Date,
     /// Updates about the information of clients.    
-	ClientInfo,     
+    ClientInfo,
     /// Updates about the generic information of companies.
-	CompanyInfo,    
+    CompanyInfo,
     /// Updates about the economy of companies.
-	CompanyEconomy, 
+    CompanyEconomy,
     /// Updates about the statistics of companies.
-	CompanyStats,   
+    CompanyStats,
     /// The admin would like to have chat messages.
-	Chat,            
+    Chat,
     /// The admin would like to have console messages.
-	Console,         
+    Console,
     /// The admin would like a list of all DoCommand names.
-	CmdNames,       
+    CmdNames,
     /// The admin would like to have DoCommand information.
-	CmdLogging,     
+    CmdLogging,
     /// The admin would like to have gamescript messages.
-	Gamescript,
+    Gamescript,
 }
 
 const ADMIN_UPDATE_TYPE_SERIALIZE_ERROR: &'static str = "could not serialze AdminUpdateType";
@@ -44,10 +44,15 @@ impl Serialize for AdminUpdateType {
 impl<'de> Deserialize<'de> for AdminUpdateType {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-       D: Deserializer<'de>,
+        D: Deserializer<'de>,
     {
-        u16::deserialize(deserializer)
-            .and_then(|num| AdminUpdateType::from_u16(num)
-                .ok_or_else(|| de::Error::invalid_value(Unexpected::Unsigned(u64::from(num)), &"a variant of AdminUpdateType")))
+        u16::deserialize(deserializer).and_then(|num| {
+            AdminUpdateType::from_u16(num).ok_or_else(|| {
+                de::Error::invalid_value(
+                    Unexpected::Unsigned(u64::from(num)),
+                    &"a variant of AdminUpdateType",
+                )
+            })
+        })
     }
 }

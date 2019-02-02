@@ -3,8 +3,8 @@
 //! enum [`Packet`](crate::packet::admin::server_packets::Packet). Packets that contain extra information also
 //! have their own struct.
 
-use serde_derive::{Deserialize, Serialize};
 use crate::types;
+use serde_derive::{Deserialize, Serialize};
 
 /// An error was caused by this admin connection (connection gets closed).
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone, Copy)]

@@ -1,5 +1,5 @@
 use bitflags::*;
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 bitflags! {
     pub struct UpdateFrequencies: u16 {
@@ -25,7 +25,7 @@ impl Serialize for UpdateFrequencies {
 impl<'de> Deserialize<'de> for UpdateFrequencies {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-       D: Deserializer<'de>,
+        D: Deserializer<'de>,
     {
         Self::from_bits(u16::deserialize(deserializer)?)
             .ok_or_else(|| serde::de::Error::custom("unknown update frequency"))

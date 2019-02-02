@@ -9,13 +9,14 @@ pub mod server_packets;
 
 pub use crate::packet::serde::{PacketRead, PacketWrite, Result};
 
-/// Provides the function [`AdminRead::read_packet`] to a type implementing
-/// [`std::io::Read`].
-pub trait AdminRead: std::io::Read {}
-impl<T: std::io::Read> AdminRead for T {}
-impl<'a, T: AdminRead> PacketRead<'a> for T {
-    type PACKET_TYPE = server_packets::Packet;
-    fn match_packet(packet_type: u8, buffer: Vec<u8>) -> Result<Self::PACKET_TYPE> {
+/// Provides the function [`AdminRead::read_packet`]. It is implemented for any type implementing std::io::Read via PacketRead.
+pub trait AdminRead {
+    fn read_packet(&mut self) -> Result<server_packets::Packet>;
+}
+
+impl<T: PacketRead> AdminRead for T {
+    fn read_packet(&mut self) -> Result<server_packets::Packet> {
+        let (packet_type, buffer) = PacketRead::read_packet(self)?;
         use crate::packet::serde::from_bytes;
         use server_packets::Packet::*;
         Ok(match packet_type {
@@ -56,6 +57,12 @@ impl<'a, T: AdminRead> PacketRead<'a> for T {
 
 /// Provides the function [`AdminWrite::write_packet`] to a type implementing
 /// [`std::io::Write`].
-pub trait AdminWrite: std::io::Write {}
-impl<T: std::io::Write> AdminWrite for T {}
-impl<T: client_packets::Packet, W: AdminWrite> PacketWrite<T> for W {}
+pub trait AdminWrite<T: client_packets::Packet> {
+    fn write_packet(&mut self, value: &T) -> Result<()>;
+}
+
+impl<T: client_packets::Packet, W: PacketWrite<T>> AdminWrite<T> for W {
+    fn write_packet(&mut self, value: &T) -> Result<()> {
+        self.write_packet(value)
+    }
+}

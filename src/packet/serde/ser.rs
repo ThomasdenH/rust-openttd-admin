@@ -25,7 +25,11 @@ pub trait WritablePacket: Serialize {
     const PACKET_TYPE: u8;
 }
 
-pub trait PacketWrite<T: WritablePacket>: std::io::Write {
+pub trait PacketWrite<T: WritablePacket> {
+    fn write_packet(&mut self, value: &T) -> Result<()>;
+}
+
+impl<T: WritablePacket, W: std::io::Write> PacketWrite<T> for W {
     fn write_packet(&mut self, value: &T) -> Result<()> {
         let mut serializer = Serializer {
             output: vec![0, 0, T::PACKET_TYPE],

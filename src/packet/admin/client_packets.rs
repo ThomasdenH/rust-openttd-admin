@@ -2,7 +2,7 @@
 //! sent to the server.
 
 use crate::packet::serde::WritablePacket;
-use crate::types::AdminUpdateType;
+use crate::types;
 use serde_derive::{Deserialize, Serialize};
 
 /// Implemented by all admin client-sendable types.
@@ -38,9 +38,9 @@ impl Packet for Quit {
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
 pub struct UpdateFrequency {
     /// Update type (see [`AdminUpdateType`]).
-    pub update_type: AdminUpdateType,
+    pub update_type: types::AdminUpdateType,
     /// Update frequency (see #AdminUpdateFrequency), setting #ADMIN_FREQUENCY_POLL is always ignored.
-    pub frequency: u16,
+    pub frequency: types::UpdateFrequencies,
 }
 impl Packet for UpdateFrequency {
     const PACKET_TYPE: u8 = 2;
@@ -48,21 +48,21 @@ impl Packet for UpdateFrequency {
 
 /// Poll the server for certain updates, an invalid poll (e.g. not existent id) gets silently dropped.
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
-pub struct AdminPoll {
+pub struct Poll {
     /// [`AdminUpdateType`] the server should answer for, only if #AdminUpdateFrequency #ADMIN_FREQUENCY_POLL is advertised in the PROTOCOL packet.
-    pub update_type: AdminUpdateType,
+    pub update_type: types::AdminUpdateType,
     /// ID relevant to the packet type, e.g.
     /// - the client ID for #ADMIN_UPDATE_CLIENT_INFO. Use UINT32_MAX to show all clients.
     /// - the company ID for #ADMIN_UPDATE_COMPANY_INFO. Use UINT32_MAX to show all companies.
     pub id: u32,
 }
-impl Packet for AdminPoll {
+impl Packet for Poll {
     const PACKET_TYPE: u8 = 3;
 }
 
 /// Send chat as the server.
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
-pub struct AdminChat<'a> {
+pub struct Chat<'a> {
     /// Action such as NETWORK_ACTION_CHAT_CLIENT (see #NetworkAction).
     pub action: u8,
     /// Destination type such as DESTTYPE_BROADCAST (see #DestType).
@@ -72,17 +72,17 @@ pub struct AdminChat<'a> {
     /// Message.
     pub message: &'a str,
 }
-impl Packet for AdminChat<'_> {
+impl Packet for Chat<'_> {
     const PACKET_TYPE: u8 = 4;
 }
 
 /// Execute a command on the servers console.
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq)]
-pub struct AdminRcon<'a> {
+pub struct Rcon<'a> {
     /// Command to be executed.
     pub command: &'a str,
 }
-impl Packet for AdminRcon<'_> {
+impl Packet for Rcon<'_> {
     const PACKET_TYPE: u8 = 5;
 }
 

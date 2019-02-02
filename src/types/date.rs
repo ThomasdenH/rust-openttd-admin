@@ -442,6 +442,13 @@ lazy_static! {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Date(u32);
 
+impl std::fmt::Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let (y, m, d) = self.to_ymd();
+        write!(f, "{:04}-{:02}-{:02}", y, m + 1, d)
+    }
+}
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
 pub enum DateError {
     #[fail(display = "the date {} is out of range", date)]

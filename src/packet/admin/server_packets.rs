@@ -19,7 +19,7 @@ pub struct UpdatePacketDescription {
     /// Update packet type.
     pub packet_type: u16,
     /// Frequencies allowed for this update packet (bitwise).
-    pub frequencies_allowed: u16,
+    pub frequencies_allowed: types::UpdateFrequencies,
 }
 
 /// Inform a just joined admin about the protocol specifics.

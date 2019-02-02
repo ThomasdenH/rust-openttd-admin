@@ -48,24 +48,22 @@ where
     }
 }
 
-/// A trait that provides the [`read_packet`](PacketRead#read_packet) function to a type implementing
-/// [`std::io::Read`].
-pub trait PacketRead<'a>: std::io::Read {
-    /// The type of the decoded packet.
-    type PACKET_TYPE: Deserialize<'a>;
+/// A trait that provides the [`read_packet`](PacketRead#read_packet) function
+/// to a type implementing [`std::io::Read`].
+pub trait PacketRead {
+    /// Read a packet and return the packet type and data.
+    fn read_packet(&mut self) -> Result<(u8, Vec<u8>)>;
+}
 
-    /// Reads a packet from the source.
-    fn read_packet(&mut self) -> Result<Self::PACKET_TYPE> {
+impl<T: std::io::Read> PacketRead for T {
+    fn read_packet(&mut self) -> Result<(u8, Vec<u8>)> {
         let length = self.read_u16::<LittleEndian>()? as usize;
         let packet_type = self.read_u8()?;
         let buffer_length = length - 3;
         let mut buffer = vec![0u8; buffer_length];
         self.read_exact(&mut buffer)?;
-        Self::match_packet(packet_type, buffer)
+        Ok((packet_type, buffer))
     }
-
-    /// Take a packet type and a data buffer and return a parsed packet.
-    fn match_packet(packet_type: u8, buffer: Vec<u8>) -> Result<Self::PACKET_TYPE>;
 }
 
 impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {

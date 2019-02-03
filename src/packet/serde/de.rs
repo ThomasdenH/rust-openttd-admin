@@ -377,4 +377,63 @@ mod test {
         assert_eq!(packet_type, 10);
         assert_eq!(from_bytes::<SimpleStruct>(&buffer).unwrap(), simple_struct);
     }
+
+    #[test]
+    fn test_vec_ser() {
+        #[derive(Deserialize, Eq, PartialEq, Debug)]
+        struct VecStruct {
+            item: Vec<u8>
+        }
+        let mut input: &[u8] = &vec![
+            14, 0, // Length
+            0xFF, // Packet type
+            1, 0, // boolean, item
+            1, 1,
+            1, 2,
+            1, 3,
+            1, 4,
+            0 // False
+        ];
+        let vec_struct = VecStruct { item: vec![0, 1, 2, 3, 4] };
+        let (packet_type, buffer) = input.read_packet().unwrap();
+        assert_eq!(packet_type, 0xFF);
+        assert_eq!(from_bytes::<VecStruct>(&buffer).unwrap(), vec_struct);
+    }
+
+    mod option_tests {
+        use super::*;
+
+        #[derive(Deserialize, Eq, PartialEq, Debug)]
+        struct OptionStruct {
+            mandatory: u8,
+            optional: Option<u8>
+        }
+
+        #[test]
+        fn test_some_ser() {
+            let mut input: &[u8] = &vec![
+                5, 0, // Length
+                3, // PACKET_TYPE
+                10, // mandatory
+                10 // optional
+            ];
+            let some_struct = OptionStruct { mandatory: 10, optional: Some(10) };
+            let (packet_type, buffer) = input.read_packet().unwrap();
+            assert_eq!(packet_type, 3);
+            assert_eq!(from_bytes::<OptionStruct>(&buffer).unwrap(), some_struct);
+        }
+
+        #[test]
+        fn test_none_ser() {
+            let mut input: &[u8] = &vec![
+                4, 0, // Length
+                3, // PACKET_TYPE
+                10 // mandatory
+            ];
+            let some_struct = OptionStruct { mandatory: 10, optional: None };
+            let (packet_type, buffer) = input.read_packet().unwrap();
+            assert_eq!(packet_type, 3);
+            assert_eq!(from_bytes::<OptionStruct>(&buffer).unwrap(), some_struct);
+        }
+    }
 }

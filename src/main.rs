@@ -14,31 +14,31 @@ fn main() -> Result<(), Error> {
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::Date,
-        frequency: types::UpdateFrequencies::Daily,
+        frequency: types::UpdateFrequencies::DAILY,
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::ClientInfo,
-        frequency: types::UpdateFrequencies::Automatic,
+        frequency: types::UpdateFrequencies::AUTOMATIC,
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::CompanyInfo,
-        frequency: types::UpdateFrequencies::Automatic,
+        frequency: types::UpdateFrequencies::AUTOMATIC,
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::CompanyInfo,
-        frequency: types::UpdateFrequencies::Automatic,
+        frequency: types::UpdateFrequencies::AUTOMATIC,
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::CompanyEconomy,
-        frequency: types::UpdateFrequencies::Weekly,
+        frequency: types::UpdateFrequencies::WEEKLY,
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::CompanyStats,
-        frequency: types::UpdateFrequencies::Weekly,
+        frequency: types::UpdateFrequencies::WEEKLY,
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
         update_type: types::AdminUpdateType::Chat,
-        frequency: types::UpdateFrequencies::Automatic,
+        frequency: types::UpdateFrequencies::AUTOMATIC,
     })?;
     loop {
         let packet = stream.read_packet()?;

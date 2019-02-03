@@ -3,13 +3,13 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 bitflags! {
     pub struct UpdateFrequencies: u16 {
-        const Poll = 0x01;
-        const Daily = 0x02;
-        const Weekly = 0x04;
-        const Monthly = 0x08;
-        const Quarterly = 0x10;
-        const Annually = 0x20;
-        const Automatic = 0x40;
+        const POLL = 0x01;
+        const DAILY = 0x02;
+        const WEEKLY = 0x04;
+        const MONTHLY = 0x08;
+        const QUARTERLY = 0x10;
+        const ANNUALLY = 0x20;
+        const AUTOMATIC = 0x40;
     }
 }
 

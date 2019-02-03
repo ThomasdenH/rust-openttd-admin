@@ -3,6 +3,7 @@ use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
 use serde::ser::{self, Impossible, Serialize, SerializeSeq};
 use std::io::Write;
 
+#[derive(Clone, Eq, PartialEq)]
 struct Serializer {
     output: Vec<u8>,
     /// Indicates an option was serialized, if it was no more input is allowed.
@@ -157,8 +158,9 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     {
         // Since None is denoted by EOF, we serialize Some by just writing the
         // inner data. We do set the flag to make sure nothing more is written.
+        v.serialize(&mut *self)?;
         self.serialized_option = true;
-        v.serialize(self)
+        Ok(())
     }
 
     fn serialize_unit(self) -> Result<()> {
@@ -352,5 +354,70 @@ mod test {
             3, 0, 0, 0, // c
             1 // d
         ]);
+    }
+
+    #[test]
+    fn test_vec_ser() {
+        #[derive(Serialize)]
+        struct VecStruct {
+            item: Vec<u8>
+        }
+        impl WritablePacket for VecStruct {
+            const PACKET_TYPE: u8 = 0xFF;
+        }
+        let vec_struct = VecStruct { item: vec![0, 1, 2, 3, 4] };
+        let mut buffer = Vec::new();
+        let output = &mut buffer;
+        output.write_packet(&vec_struct).unwrap();
+        assert_eq!(buffer, vec![
+            14, 0, // Length
+            0xFF, // Packet type
+            1, 0, // boolean, item
+            1, 1,
+            1, 2,
+            1, 3,
+            1, 4,
+            0 // False
+        ]);
+    }
+
+    mod option_tests {
+        use super::*;
+
+        #[derive(Serialize)]
+        struct OptionStruct {
+            mandatory: u8,
+            optional: Option<u8>
+        }
+        impl WritablePacket for OptionStruct {
+            const PACKET_TYPE: u8 = 3;
+        }
+
+        #[test]
+        fn test_some_ser() {
+            let some_struct = OptionStruct { mandatory: 10, optional: Some(10) };
+            let mut buffer = Vec::new();
+            let output = &mut buffer;
+            output.write_packet(&some_struct).unwrap();
+            assert_eq!(buffer, vec![
+                5, 0, // Length
+                3, // PACKET_TYPE
+                10, // mandatory
+                10 // optional
+            ]);
+        }
+
+        #[test]
+        fn test_none_ser() {
+            let some_struct = OptionStruct { mandatory: 10, optional: None };
+            let mut buffer = Vec::new();
+            let output = &mut buffer;
+            output.write_packet(&some_struct).unwrap();
+            assert_eq!(buffer, vec![
+                4, 0, // Length
+                3, // PACKET_TYPE
+                10 // mandatory
+            ]);
+        }
     }
 }

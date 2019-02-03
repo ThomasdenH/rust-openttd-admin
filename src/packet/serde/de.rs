@@ -351,4 +351,30 @@ mod test {
         let mut empty_packet: &[u8] = &[3, 0, 10];
         assert_eq!(empty_packet.read_packet().unwrap(), (10, Vec::new()));
     }
+
+    use super::*;
+    use serde_derive::Deserialize;
+
+    #[test]
+    fn test_simple_struct_read() {
+        #[derive(Deserialize, Eq, PartialEq, Debug)]
+        struct SimpleStruct {
+            a: u8,
+            b: u16,
+            c: u32,
+            d: bool
+        }
+        let mut input: &[u8] = &vec![
+            11, 0, // Length
+            10, // PACKET_TYPE
+            1, // a
+            2, 0, // b
+            3, 0, 0, 0, // c
+            1 // d
+        ];
+        let simple_struct = SimpleStruct { a: 1, b: 2, c: 3, d: true};
+        let (packet_type, buffer) = input.read_packet().unwrap();
+        assert_eq!(packet_type, 10);
+        assert_eq!(from_bytes::<SimpleStruct>(&buffer).unwrap(), simple_struct);
+    }
 }

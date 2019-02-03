@@ -322,3 +322,35 @@ impl<'a> ser::SerializeTupleStruct for &'a mut Serializer {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde_derive::Serialize;
+
+    #[test]
+    fn test_simple_struct_ser() {
+        #[derive(Serialize)]
+        struct SimpleStruct {
+            a: u8,
+            b: u16,
+            c: u32,
+            d: bool
+        }
+        impl WritablePacket for SimpleStruct {
+            const PACKET_TYPE: u8 = 10;
+        }
+        let simple_struct = SimpleStruct { a: 1, b: 2, c: 3, d: true};
+        let mut buffer = Vec::new();
+        let output = &mut buffer;
+        output.write_packet(&simple_struct).unwrap();
+        assert_eq!(buffer, vec![
+            11, 0, // Length
+            10, // PACKET_TYPE
+            1, // a
+            2, 0, // b
+            3, 0, 0, 0, // c
+            1 // d
+        ]);
+    }
+}

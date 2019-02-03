@@ -13,8 +13,32 @@ fn main() -> Result<(), Error> {
         name: "rust",
     })?;
     stream.write_packet(&client_packets::UpdateFrequency {
-        frequency: types::UpdateFrequencies::Daily,
         update_type: types::AdminUpdateType::Date,
+        frequency: types::UpdateFrequencies::Daily,
+    })?;
+    stream.write_packet(&client_packets::UpdateFrequency {
+        update_type: types::AdminUpdateType::ClientInfo,
+        frequency: types::UpdateFrequencies::Automatic,
+    })?;
+    stream.write_packet(&client_packets::UpdateFrequency {
+        update_type: types::AdminUpdateType::CompanyInfo,
+        frequency: types::UpdateFrequencies::Automatic,
+    })?;
+    stream.write_packet(&client_packets::UpdateFrequency {
+        update_type: types::AdminUpdateType::CompanyInfo,
+        frequency: types::UpdateFrequencies::Automatic,
+    })?;
+    stream.write_packet(&client_packets::UpdateFrequency {
+        update_type: types::AdminUpdateType::CompanyEconomy,
+        frequency: types::UpdateFrequencies::Weekly,
+    })?;
+    stream.write_packet(&client_packets::UpdateFrequency {
+        update_type: types::AdminUpdateType::CompanyStats,
+        frequency: types::UpdateFrequencies::Weekly,
+    })?;
+    stream.write_packet(&client_packets::UpdateFrequency {
+        update_type: types::AdminUpdateType::Chat,
+        frequency: types::UpdateFrequencies::Automatic,
     })?;
     loop {
         let packet = stream.read_packet()?;

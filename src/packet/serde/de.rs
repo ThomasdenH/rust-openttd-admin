@@ -341,3 +341,14 @@ impl<'de, 'a> SeqAccess<'de> for FixedSizeSeqAccess<'a, 'de> {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::PacketRead;
+
+    #[test]
+    fn test_empty_packet_read() {
+        let mut empty_packet: &[u8] = &[3, 0, 10];
+        assert_eq!(empty_packet.read_packet().unwrap(), (10, Vec::new()));
+    }
+}

@@ -13,11 +13,11 @@ pub struct Error {
     pub error_code: u8,
 }
 
-/// Describes an update packet.
+/// Describes an update packet the admin client can register for.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone, Copy)]
 pub struct UpdatePacketDescription {
     /// Update packet type.
-    pub packet_type: u16,
+    pub packet_type: types::AdminUpdateType,
     /// Frequencies allowed for this update packet (bitwise).
     pub frequencies_allowed: types::UpdateFrequencies,
 }

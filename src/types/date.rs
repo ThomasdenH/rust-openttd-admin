@@ -436,10 +436,17 @@ lazy_static! {
 }
 
 /// An OpenTTD date.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Date(u32);
 
 impl std::fmt::Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let (y, m, d) = self.to_ymd();
+        write!(f, "{:04}-{:02}-{:02}", y, m + 1, d)
+    }
+}
+
+impl std::fmt::Debug for Date {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let (y, m, d) = self.to_ymd();
         write!(f, "{:04}-{:02}-{:02}", y, m + 1, d)

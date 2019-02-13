@@ -11,7 +11,7 @@ fn test_company_economy_deser() {
         id: 0,
         money: 99642,
         loan: 100000,
-        income: 18446744073709551258,
+        income: 0,
         delivered_cargo: 0,
         company_value_last: 0,
         performance_last: 0,

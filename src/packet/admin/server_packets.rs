@@ -140,129 +140,129 @@ pub struct CompanyInfo {
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CompanyUpdate {
     /// ID of the company.
-    id: u8,
+    pub id: u8,
     /// Name of the company.
-    name: String,
+    pub name: String,
     // Name of the companies manager.
-    manager: String,
+    pub manager: String,
     /// Main company colour.
-    color: u8,
+    pub color: u8,
     /// Company is password protected.
-    password_protected: bool,
+    pub password_protected: bool,
     /// Quarters of bankruptcy.
-    quarters_bankrupt: u8,
+    pub quarters_bankrupt: u8,
     /// Owner of share 1.
-    owner_share_1: u8,
+    pub owner_share_1: u8,
     /// Owner of share 2.
-    owner_share_2: u8,
+    pub owner_share_2: u8,
     /// Owner of share 3.
-    owner_share_3: u8,
+    pub owner_share_3: u8,
     /// Owner of share 4.
-    owner_share_4: u8,
+    pub owner_share_4: u8,
 }
 
 /// Notification about a removed company (e.g. due to bankruptcy).
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub struct CompanyRemove {
     /// ID of the company.
-    id: u8,
+    pub id: u8,
     /// Reason for being removed (see #AdminCompanyRemoveReason).
-    reason: u8,
+    pub reason: u8,
 }
 
 /// Economy update of a specific company.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub struct CompanyEconomy {
     /// ID of the company.
-    id: u8,
+    pub id: u8,
     /// Money.
-    money: u64,
+    pub money: u64,
     /// Loan.
-    loan: u64,
+    pub loan: u64,
     /// Income.
-    income: u64,
+    pub income: i64,
     /// Delivered cargo (this quarter).
-    delivered_cargo: u16,
+    pub delivered_cargo: u16,
     /// Company value (last quarter).
-    company_value_last: u64,
+    pub company_value_last: u64,
     /// Performance (last quarter).
-    performance_last: u16,
+    pub performance_last: u16,
     /// Delivered cargo (last quarter).
-    delivered_cargo_last: u16,
+    pub delivered_cargo_last: u16,
     /// Company value (previous quarter).
-    company_value_previous: u16,
+    pub company_value_previous: u64,
     /// Performance (previous quarter).
-    performance_previous: u16,
+    pub performance_previous: u16,
     /// Delivered cargo (previous quarter).
-    delivered_previous: u16,
+    pub delivered_previous: u16,
 }
 
 /// Company statistics on stations and vehicles.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 pub struct CompanyStats {
     /// ID of the company.
-    id: u8,
+    pub id: u8,
     /// Number of trains.
-    trains: u16,
+    pub trains: u16,
     /// Number of lorries.
-    lorries: u16,
+    pub lorries: u16,
     /// Number of busses.
-    busses: u16,
+    pub busses: u16,
     /// Number of planes.
-    planes: u16,
+    pub planes: u16,
     /// Number of ships.
-    ships: u16,
+    pub ships: u16,
     /// Number of train stations.
-    train_stations: u16,
+    pub train_stations: u16,
     /// Number of lorry stations.
-    lorry_stations: u16,
+    pub lorry_stations: u16,
     /// Number of bus stops.
-    bus_stops: u16,
+    pub bus_stops: u16,
     /// Number of airports and heliports.
-    airports_and_heliports: u16,
+    pub airports_and_heliports: u16,
     /// Number of harbours.
-    harbours: u16,
+    pub harbours: u16,
 }
 
 /// Send chat from the game into the admin network.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Chat {
     /// Action such as NETWORK_ACTION_CHAT_CLIENT (see #NetworkAction).
-    action: u8,
+    pub action: u8,
     /// Destination type such as DESTTYPE_BROADCAST (see #DestType).
-    destination: u8,
+    pub destination: u8,
     /// ID of the client who sent this message.
-    client: u32,
+    pub client: u32,
     /// Message.
-    message: String,
+    pub message: String,
     /// Money (only when it is a 'give money' action).
-    money: Option<u64>,
+    pub money: Option<u64>,
 }
 
 /// Result of an rcon command.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Rcon {
     /// Colour as it would be used on the server or a client.
-    color: u16,
+    pub color: u16,
     /// Output of the executed command.
-    output: String,
+    pub output: String,
 }
 
 /// Send what would be printed on the server's console also into the admin network.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Console {
     /// The origin of the text, e.g. "console" for console, or "net" for network related (debug) messages.
-    origin: String,
+    pub origin: String,
     /// Text as found on the console of the server.
-    text: String,
+    pub text: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CmdName {
     /// ID of the DoCommand.
-    id: u16,
+    pub id: u16,
     /// Name of DoCommand.
-    name: String,
+    pub name: String,
 }
 
 /// Send DoCommand names to the bot upon request only. Multiple of these
@@ -274,7 +274,7 @@ pub struct CmdName {
 /// for logging purposes only.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CmdNames {
-    names: Vec<CmdName>,
+    pub names: Vec<CmdName>,
 }
 
 /// Send incoming command packets to the admin network. This is for logging
@@ -286,42 +286,42 @@ pub struct CmdNames {
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CmdLogging {
     /// ID of the client sending the command.
-    client_id: u32,
+    pub client_id: u32,
     /// ID of the company (0..MAX_COMPANIES-1).
-    company_id: u8,
+    pub company_id: u8,
     /// ID of the command.
-    command_id: u16,
+    pub command_id: u16,
     /// P1 (variable data passed to the command).
-    p1: u32,
+    pub p1: u32,
     /// P2 (variable data passed to the command).
-    p2: u32,
+    pub p2: u32,
     /// Tile where this is taking place.
-    tile: u32,
+    pub tile: u32,
     /// Text passed to the command.
-    text: String,
+    pub text: String,
     /// Frame of execution.
-    execution_frame: u32,
+    pub execution_frame: u32,
 }
 
 /// Send a JSON string to the current active GameScript.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Gamescript {
     /// JSON string for the GameScript.
-    json: String,
+    pub json: String,
 }
 
 /// Notify the admin connection that the rcon command has finished.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct RconEnd {
     /// The command as requested by the admin connection.
-    command: String,
+    pub command: String,
 }
 
 /// Send a ping-reply (pong) to the admin that sent us the ping packet.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Pong {
     /// Should be the same as read from the admins ping packet.
-    id: u32,
+    pub id: u32,
 }
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]

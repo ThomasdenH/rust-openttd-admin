@@ -7,6 +7,9 @@
 pub mod client_packets;
 pub mod server_packets;
 
+#[cfg(test)]
+mod test;
+
 pub use crate::packet::serde::{PacketRead, PacketWrite, Result};
 
 /// Provides the function [`AdminRead::read_packet`]. It is implemented for any type implementing std::io::Read via PacketRead.

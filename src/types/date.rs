@@ -436,7 +436,7 @@ lazy_static! {
 }
 
 /// An OpenTTD date.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Date(u32);
 
 impl std::fmt::Display for Date {

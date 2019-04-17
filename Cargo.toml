@@ -3,6 +3,8 @@ name = "rust-openttd-admin"
 version = "0.1.0"
 authors = ["Thomas den Hollander <denhollander.thomas@gmail.com>"]
 edition = "2018"
+description = "A library to receive and parse OpenTTD admin packets."
+license = "MIT"
 
 [dependencies]
 byteorder = "1"

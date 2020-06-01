@@ -17,4 +17,4 @@ lazy_static = "1"
 bitflags = "1"
 
 [dev-dependencies]
-proptest = "0.9.1"
+proptest = "0.10.0"
